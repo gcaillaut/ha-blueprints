@@ -16,32 +16,6 @@ blueprint:
           domain: binary_sensor
           device_class: occupancy
 
-    ieee_id:
-      name: Occupancy Sensor Zigbee2MQTT Device Name
-      description: "The Zigbee2MQTT friendly name of the sensor"
-      selector:
-        text:
-
-    o_to_u_delay:
-      name: Occupied to Unoccupied Delay
-      description: "Time in seconds before turning off lights after last motion detection"
-      default: 180
-      selector:
-        number:
-          min: 0
-          max: 1800
-          mode: box
-          unit_of_measurement: "seconds"
-
-    sensitivity:
-      name: Sensor Sensitivity
-      description: "Adjusts motion sensitivity (0 = least sensitive, 2 = most sensitive)"
-      default: 2
-      selector:
-        number:
-          min: 0
-          max: 2
-
     illuminance_entity:
       name: Illuminance Sensor
       description: "The luminance sensor to use for light-based triggers"
@@ -71,10 +45,10 @@ blueprint:
     daytime_brightness:
       name: Daytime Brightness
       description: "Brightness level during the day"
-      default: 75
+      default: 100
       selector:
         number:
-          min: 10
+          min: 0
           max: 100
           mode: box
           unit_of_measurement: "%"
@@ -82,10 +56,10 @@ blueprint:
     nighttime_brightness:
       name: Nighttime Brightness
       description: "Brightness level at night"
-      default: 10
+      default: 20
       selector:
         number:
-          min: 10
+          min: 0
           max: 100
           mode: box
           unit_of_measurement: "%"
@@ -113,6 +87,20 @@ blueprint:
           step: 100
           mode: box
           unit_of_measurement: "Kelvin"
+    
+    night_start:
+      name: Start of night time
+      description: "Time indicating when night mode starts"
+      default: "00:00:00"
+      selector:
+        time:
+
+    night_end:
+      name: End of night time
+      description: "Time indicating when night mode ends"
+      default: "06:00:00"
+      selector:
+        time:
 
     fade_in_time:
       name: Light Fade-In Duration
@@ -129,7 +117,7 @@ blueprint:
     fade_out_time:
       name: Light Fade-Out Duration
       description: "Time in seconds for the light to fade out when turning off"
-      default: 3
+      default: 5
       selector:
         number:
           min: 0
@@ -157,16 +145,12 @@ blueprint:
             domain: media_player
 
 variables:
-  ieee_id: !input ieee_id
   disable_entity: !input disable_entity
   media_entity: !input media_entity
 
 mode: single
 
 trigger:
-  - platform: homeassistant
-    event: start
-
   - platform: state
     entity_id: !input occupancy_entity
 
@@ -184,20 +168,6 @@ action:
     choose:
       - conditions:
           - condition: template
-            value_template: "{{ trigger.platform == 'homeassistant' }}"
-        sequence:
-          - service: mqtt.publish
-            data:
-              topic: "zigbee2mqtt/{{ ieee_id }}/set"
-              payload: '{"occupancy_timeout": {{ o_to_u_delay }}}'
-
-          - service: mqtt.publish
-            data:
-              topic: "zigbee2mqtt/{{ ieee_id }}/set"
-              payload: '{"motion_sensitivity": {{ sensitivity }}}'
-
-      - conditions:
-          - condition: template
             value_template: "{{ trigger.platform == 'state' and trigger.to_state.state == 'on' }}"
           - condition: numeric_state
             entity_id: !input illuminance_entity
@@ -207,8 +177,8 @@ action:
             choose:
               - conditions:
                   - condition: time
-                    after: "22:00:00"
-                    before: "07:00:00"
+                    after: !input night_start
+                    before: !input night_end
                 sequence:
                   - service: light.turn_on
                     entity_id: !input light_entity
