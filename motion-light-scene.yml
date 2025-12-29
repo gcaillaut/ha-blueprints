@@ -141,7 +141,7 @@ action:
                 sequence:
                   - service: scene.turn_on
                     target:
-                      entity_id: !input nighttime_scene
+                      entity_id: !input daytime_scene
 
       - conditions:
           - condition: template
