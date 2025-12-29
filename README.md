@@ -10,3 +10,14 @@ Controls a light (or lights) using a Philips Hue SML001 motion sensor connected 
 - Allows user-configurable fade-in and fade-out times for smooth lighting effects.
 
 [![Install](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fgcaillaut%2Fha-blueprints%2Fblob%2Fmaster%2Fmotion-light.yml)
+
+
+## [Hue Motion Sensor Scenes (zigbee2mqtt)](/motion-light.yml)
+
+Controls a light (or lights) using a Philips Hue SML001 motion sensor connected to Home Assistant via Zigbee2MQTT.
+
+- Activate scene on lights when occupancy is detected and off when unoccupied.
+- Uses different scenes for day and night.
+- Optionally, disables motion-based activation if a media player (e.g., TV) is on.
+
+[![Install](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fgcaillaut%2Fha-blueprints%2Fblob%2Fmaster%2Fmotion-light-scene.yml)

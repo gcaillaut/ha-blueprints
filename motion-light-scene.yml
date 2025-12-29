@@ -1,0 +1,191 @@
+blueprint:
+  name: Hue Motion Sensor Lights (zigbee2mqtt)
+  description: |
+    Controls a light (or lights) using a Philips Hue SML001 motion sensor connected to Home Assistant via Zigbee2MQTT.
+    - Turns on lights when occupancy is detected and off when unoccupied.
+    - Uses different brightness settings for day and night.
+    - Optionally, disables motion-based activation if a media player (e.g., TV) is on.
+    - Allows user-configurable fade-in and fade-out times for smooth lighting effects.
+  domain: automation
+  input:
+    occupancy_entity:
+      name: Occupancy Sensor
+      description: "The occupancy sensor to use for this automation"
+      selector:
+        entity:
+          domain: binary_sensor
+          device_class: occupancy
+
+    illuminance_entity:
+      name: Illuminance Sensor
+      description: "The luminance sensor to use for light-based triggers"
+      selector:
+        entity:
+          domain: sensor
+          device_class: illuminance
+
+    luminance_value:
+      name: Light Trigger Level
+      description: "Light will turn on if ambient light is below this level"
+      default: 6
+      selector:
+        number:
+          min: 2
+          max: 3000
+          mode: box
+          unit_of_measurement: "lx"
+
+    light_entity:
+      name: Lights
+      description: "The light(s) to control"
+      selector:
+        entity:
+          domain: light
+
+    daytime_scene:
+      name: Daytime scene
+      description: "Scene to activate during the day"
+      selector:
+        entity:
+          domain: scene
+
+    nighttime_scene:
+      name: Nighttime scene
+      description: "Scene to activate at night"
+      selector:
+        entity:
+          domain: scene
+
+    daytime_colour:
+      name: Daytime Colour Temperature
+      description: "Colour temperature of the light during the day"
+      default: 4500
+      selector:
+        number:
+          min: 2200
+          max: 6500
+          step: 100
+          mode: box
+          unit_of_measurement: "Kelvin"
+
+    nighttime_colour:
+      name: Nighttime Colour Temperature
+      description: "Colour temperature of the light at night"
+      default: 3000
+      selector:
+        number:
+          min: 2200
+          max: 6500
+          step: 100
+          mode: box
+          unit_of_measurement: "Kelvin"
+    
+    night_start:
+      name: Start of night time
+      description: "Time indicating when night mode starts"
+      default: "00:00:00"
+      selector:
+        time:
+
+    night_end:
+      name: End of night time
+      description: "Time indicating when night mode ends"
+      default: "06:00:00"
+      selector:
+        time:
+
+    fade_in_time:
+      name: Light Fade-In Duration
+      description: "Time in seconds for the light to fade in when turning on"
+      default: 2
+      selector:
+        number:
+          min: 0
+          max: 10
+          step: 0.5
+          mode: slider
+          unit_of_measurement: "seconds"
+
+    fade_out_time:
+      name: Light Fade-Out Duration
+      description: "Time in seconds for the light to fade out when turning off"
+      default: 5
+      selector:
+        number:
+          min: 0
+          max: 10
+          step: 0.5
+          mode: slider
+          unit_of_measurement: "seconds"
+
+    disable_entity:
+      name: Disable Sensor (Input Boolean)
+      description: "An input_boolean to disable the motion sensor"
+      default: {}
+      selector:
+        target:
+          entity:
+            domain: input_boolean
+
+    media_entity:
+      name: Disable if Media Player is On
+      description: "A media_player entity that disables the motion sensor when active (e.g., TV)"
+      default: {}
+      selector:
+        target:
+          entity:
+            domain: media_player
+
+variables:
+  disable_entity: !input disable_entity
+  media_entity: !input media_entity
+
+mode: single
+
+trigger:
+  - platform: state
+    entity_id: !input occupancy_entity
+
+condition:
+  # Using a template allows us to cater for either of these entities being "None"
+  - alias: "Exit if sensor is disabled"
+    condition: template
+    value_template: "{{ True if not disable_entity else is_state(disable_entity.entity_id, 'off') }}"
+  - alias: "Exit if media player on"
+    condition: template
+    value_template: "{{ True if not media_entity else is_state(media_entity.entity_id, 'off') }}"
+
+action:
+  - alias: "What caused the trigger?"
+    choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.platform == 'state' and trigger.to_state.state == 'on' }}"
+          - condition: numeric_state
+            entity_id: !input illuminance_entity
+            below: !input luminance_value
+        sequence:
+          - alias: "Night time or day time?"
+            choose:
+              - conditions:
+                  - condition: time
+                    after: !input night_start
+                    before: !input night_end
+                sequence:
+                  - service: scene.turn_on
+                    target:
+                      entity_id: !input nighttime_scene
+              - conditions: []
+                sequence:
+                  - service: scene.turn_on
+                    target:
+                      entity_id: !input nighttime_scene
+
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.platform == 'state' and trigger.to_state.state == 'off' }}"
+        sequence:
+          - service: light.turn_off
+            entity_id: !input light_entity
+            data:
+              transition: !input fade_out_time
