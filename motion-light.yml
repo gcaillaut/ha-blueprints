@@ -30,8 +30,8 @@ blueprint:
       default: 6
       selector:
         number:
-          min: 2
-          max: 3000
+          min: 1
+          max: 5000
           mode: box
           unit_of_measurement: "lx"
 
@@ -70,7 +70,7 @@ blueprint:
       default: 4500
       selector:
         number:
-          min: 2200
+          min: 500
           max: 6500
           step: 100
           mode: box
@@ -82,7 +82,7 @@ blueprint:
       default: 3000
       selector:
         number:
-          min: 2200
+          min: 500
           max: 6500
           step: 100
           mode: box
