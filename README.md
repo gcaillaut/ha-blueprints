@@ -1,6 +1,6 @@
 # HomeAssistant blueprints
 
-## [Hue Motion Sensor Lights (zigbee2mqtt)](/motion-light.yml)
+## [Hue Motion Sensor Lights (zigbee2mqtt)](/motion-light.yaml)
 
 Controls a light (or lights) using a Philips Hue SML001 motion sensor connected to Home Assistant via Zigbee2MQTT.
 
@@ -9,10 +9,10 @@ Controls a light (or lights) using a Philips Hue SML001 motion sensor connected 
 - Optionally, disables motion-based activation if a media player (e.g., TV) is on.
 - Allows user-configurable fade-in and fade-out times for smooth lighting effects.
 
-[![Install](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fgcaillaut%2Fha-blueprints%2Fblob%2Fmaster%2Fmotion-light.yml)
+[![Install](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fgcaillaut%2Fha-blueprints%2Fblob%2Fmaster%2Fmotion-light.yaml)
 
 
-## [Hue Motion Sensor Scenes (zigbee2mqtt)](/motion-light.yml)
+## [Hue Motion Sensor Scenes (zigbee2mqtt)](/motion-light.yaml)
 
 Controls a light (or lights) using a Philips Hue SML001 motion sensor connected to Home Assistant via Zigbee2MQTT.
 
@@ -20,4 +20,4 @@ Controls a light (or lights) using a Philips Hue SML001 motion sensor connected 
 - Uses different scenes for day and night.
 - Optionally, disables motion-based activation if a media player (e.g., TV) is on.
 
-[![Install](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fgcaillaut%2Fha-blueprints%2Fblob%2Fmaster%2Fmotion-light-scene.yml)
+[![Install](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fgcaillaut%2Fha-blueprints%2Fblob%2Fmaster%2Fmotion-light-scene.yaml)
